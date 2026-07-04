@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 3: Phishing Awareness Analysis</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ---------- CSS Variables (Theme) ---------- */
+        :root {
+            --bg-primary: #0b0e1a;
+            --bg-secondary: #13182b;
+            --bg-card: #1a2140;
+            --bg-card-hover: #232d5a;
+            --text-primary: #e8edf5;
+            --text-secondary: #a8b5d9;
+            --text-muted: #6b7aa3;
+            --accent-cyan: #00e5ff;
+            --accent-green: #00ff88;
+            --accent-orange: #ff9f43;
+            --accent-red: #ff4757;
+            --border-glow: rgba(0, 229, 255, 0.15);
+            --shadow-glow: 0 8px 32px rgba(0, 229, 255, 0.08);
+            --radius: 16px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        [data-theme="light"] {
+            --bg-primary: #f0f4fd;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8faff;
+            --text-primary: #0b0e1a;
+            --text-secondary: #2d3a5a;
+            --text-muted: #5a6a8a;
+            --border-glow: rgba(0, 100, 255, 0.15);
+            --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ---------- Reset & Base ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.6;
+            padding: 2rem 1.5rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ---------- Scrollbar ---------- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 10px; }
+
+        /* ---------- Typography ---------- */
+        .glow-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        h1 { font-size: 2.8rem; margin-bottom: 0.2rem; }
+        h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--text-primary); }
+        h2 i { color: var(--accent-cyan); margin-right: 12px; }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-secondary);
+        }
+
+        /* ---------- Header / Nav ---------- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-glow);
+            margin-bottom: 3rem;
+        }
+        .logo h1 { font-size: 1.8rem; margin: 0; }
+        .logo .sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle:hover {
+            background: var(--accent-cyan);
+            color: #0b0e1a;
+            transform: rotate(30deg);
+        }
+
+        /* ---------- Sections ---------- */
+        section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 2.5rem 2.8rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-glow);
+            box-shadow: var(--shadow-glow);
+            transition: var(--transition);
+        }
+        @media (max-width: 768px) {
+            section { padding: 1.8rem 1.2rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+        }
+
+        /* ---------- Intro ---------- */
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        .intro-grid p { color: var(--text-secondary); font-size: 1.1rem; }
+        .stats-box {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--accent-red);
+        }
+        .stat-item { flex: 1; min-width: 80px; }
+        .stat-number { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--accent-cyan); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+        @media (max-width: 768px) { .intro-grid { grid-template-columns: 1fr; } }
+
+        /* ---------- Checklist Grid ---------- */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        .flag-card {
+            background: var(--bg-card);
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--text-muted);
+            transition: var(--transition);
+            cursor: default;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .flag-card:hover { background: var(--bg-card-hover); transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+        .flag-card .icon { font-size: 1.4rem; margin-top: 2px; flex-shrink: 0; }
+        .flag-card .content h4 { font-size: 1rem; margin-bottom: 2px; }
+        .flag-card .content p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+        .severity-critical { border-left-color: var(--accent-red); }
+        .severity-high { border-left-color: var(--accent-orange); }
+        .severity-medium { border-left-color: var(--accent-cyan); }
+
+        /* ---------- Decision Tree (Interactive Visual) ---------- */
+        .tree-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        .tree-node {
+            background: var(--bg-card);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-glow);
+            min-width: 200px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-glow);
+            transition: var(--transition);
+            width: 100%;
+            max-width: 500px;
+        }
+        .tree-node.ask { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .tree-node.safe { border-color: var(--accent-green); background: rgba(0, 255, 136, 0.08); color: var(--accent-green); }
+        .tree-node.sus { border-color: var(--accent-orange); background: rgba(255, 159, 67, 0.08); color: var(--accent-orange); }
+        .tree-node.mal { border-color: var(--accent-red); background: rgba(255, 71, 87, 0.08); color: var(--accent-red); }
+        .tree-arrow {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+            line-height: 0.5;
+        }
+        .tree-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 700px;
+        }
+        .tree-row .tree-node { flex: 1; min-width: 150px; }
+
+        /* ---------- Case Study (Email) ---------- */
+        .email-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            border-left: 6px solid var(--accent-red);
+            font-family: 'Courier New', monospace;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        .email-card .field { color: var(--text-muted); font-weight: 600; }
+        .email-card .value { color: var(--text-primary); }
+        .email-card .danger { color: var(--accent-red); font-weight: 700; }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .analysis-item {
+            background: var(--bg-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-cyan);
+        }
+        .analysis-item .label { font-weight: 700; color: var(--accent-cyan); font-size: 0.9rem; }
+        .analysis-item .desc { color: var(--text-secondary); margin-top: 4px; }
+
+        /* ---------- Triage Simulator (JS Interactive) ---------- */
+        .simulator-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .sim-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.2rem;
+        }
+        .sim-btn {
+            padding: 0.8rem 2.2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glow);
+        }
+        .sim-btn:hover { transform: scale(1.05); }
+        .sim-btn.safe:hover { background: var(--accent-green); color: #0b0e1a; border-color: var(--accent-green); }
+        .sim-btn.sus:hover { background: var(--accent-orange); color: #0b0e1a; border-color: var(--accent-orange); }
+        .sim-btn.mal:hover { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .sim-feedback {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--bg-primary);
+            font-weight: 500;
+            display: none;
+        }
+        .sim-feedback.show { display: block; }
+        .sim-feedback.correct { border: 2px solid var(--accent-green); color: var(--accent-green); }
+        .sim-feedback.wrong { border: 2px solid var(--accent-red); color: var(--accent-red); }
+
+        /* ---------- Footer ---------- */
+        footer {
+            text-align: center;
+            padding: 2rem 0 0.5rem;
+            border-top: 1px solid var(--border-glow);
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        footer i { color: var(--accent-red); }
+
+        /* ---------- Responsive tweaks ---------- */
+        @media (max-width: 600px) {
+            header { flex-direction: column; align-items: start; gap: 1rem; }
+            .checklist-grid { grid-template-columns: 1fr; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            .tree-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <div class="logo">
+            <h1 class="glow-text">🛡️ Phish<span style="color: var(--text-primary); -webkit-text-fill-color: var(--text-primary);">Aware</span></h1>
+            
+        </div>
+        <div class="header-actions">
+            <span class="badge"><i class="fas fa-shield-alt"></i> Human Firewall</span>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== INTRO ==================== -->
+    <section>
+        <div class="intro-grid">
+            <div>
+                <h2><i class="fas fa-bullseye"></i> The Mission</h2>
+                <p>Step into the role of a <strong>Cybersecurity Analyst</strong>. Your task: dissect communications to spot deceptive tactics and malicious intent. Before firewalls, you must master the <strong>Human Firewall</strong>.</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">
+                    <i class="fas fa-arrow-right" style="color: var(--accent-cyan);"></i> 
+                    <strong>Golden Rule:</strong> Pause → Verify → Report.
+                </p>
+            </div>
+            <div class="stats-box">
+                <div class="stat-item">
+                    <div class="stat-number">82s</div>
+                    <div class="stat-label">Avg time to first click</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">40%</div>
+                    <div class="stat-label">Fall for simulation</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">$100M</div>
+                    <div class="stat-label">Lost to BEC (Quanta)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CHECKLIST ==================== -->
+    <section>
+        <h2><i class="fas fa-list-ul"></i> Red Flag Triage Checklist</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Spot <strong>two or more</strong> of these? Stop interacting and escalate immediately.</p>
+        <div class="checklist-grid">
+            <div class="flag-card severity-critical"><div class="icon">🚨</div><div class="content"><h4>Display Name Mismatch</h4><p>Shows "CEO" but email is @gmail.com. Always check the header.</p></div></div>
+            <div class="flag-card severity-critical"><div class="icon">🎭</div><div class="content"><h4>Domain Spoofing / Typos</h4><p>paypa1.com, amaz0n.com, or foreign character swaps (Homoglyphs).</p></div></div>
+            <div class="flag-card severity-critical"><div class="icon">⏳</div><div class="content"><h4>Extreme Urgency</h4><p>"IMMEDIATE", "30 minutes", "Act now" — triggers fight-or-flight.</p></div></div>
+            <div class="flag-card severity-critical"><div class="icon">🤫</div><div class="content"><h4>Secrecy / Bypass Rules</h4><p>"Do not tell anyone", "Bypass standard procedure" — classic BEC.</p></div></div>
+            <div class="flag-card severity-high"><div class="icon">💰</div><div class="content"><h4>Sensitive Info Requests</h4><p>Passwords, MFA codes, wire transfers, or payment changes.</p></div></div>
+            <div class="flag-card severity-high"><div class="icon">📎</div><div class="content"><h4>Dangerous Attachments</h4><p>.iso, .js, .scr, .html (smuggling). Real invoices are .pdf.</p></div></div>
+            <div class="flag-card severity-high"><div class="icon">📱</div><div class="content"><h4>Unsolicited QR Codes</h4><p>"Scan to secure account" — bypasses desktop URL filters (Quishing).</p></div></div>
+            <div class="flag-card severity-medium"><div class="icon">📞</div><div class="content"><h4>Callback Scams (TOAD)</h4><p>No link, just a phone number to call "support".</p></div></div>
+            <div class="flag-card severity-critical"><div class="icon">🔗</div><div class="content"><h4>Subdomain Burying</h4><p>Read URLs right-to-left. google.com.malicious.net → root is malicious.net.</p></div></div>
+        </div>
+    </section>
+
+    <!-- ==================== DECISION TREE ==================== -->
+    <section>
+        <h2><i class="fas fa-project-diagram"></i> Triage Decision Tree</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Follow the flow. One critical "YES" = escalate immediately.</p>
+        <div class="tree-flow">
+            <div class="tree-node ask"><i class="fas fa-question-circle"></i> Start: Unexpected Email?</div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-node ask"><i class="fas fa-envelope"></i> Q1: Domain match the header?</div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-row">
+                <div class="tree-node mal"><i class="fas fa-times-circle"></i> NO → MALICIOUS</div>
+                <div class="tree-node ask">YES → Q2</div>
+            </div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-node ask"><i class="fas fa-clock"></i> Q2: Urgency / Secrecy / Bypass?</div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-row">
+                <div class="tree-node mal"><i class="fas fa-exclamation-triangle"></i> YES → MALICIOUS</div>
+                <div class="tree-node ask">NO → Q3</div>
+            </div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-node ask"><i class="fas fa-lock"></i> Q3: Sensitive data / Wire transfer?</div>
+            <div class="tree-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="tree-row">
+                <div class="tree-node mal"><i class="fas fa-skull"></i> YES → MALICIOUS</div>
+                <div class="tree-node sus">NO → SUSPICIOUS (Verify offline)</div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
+                <span style="color: var(--accent-green);"><i class="fas fa-check-circle"></i> Safe → Close</span>
+                <span style="color: var(--accent-orange);"><i class="fas fa-exclamation-circle"></i> Suspicious → Warn User</span>
+                <span style="color: var(--accent-red);"><i class="fas fa-ban"></i> Malicious → Block & Escalate</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CASE STUDY ==================== -->
+    <section>
+        <h2><i class="fas fa-search"></i> Forensic Email Analysis</h2>
+        <p style="color: var(--text-secondary);">Analyzing the "CEO Wire Transfer" scam (Slide 16).</p>
+        
+        <div class="email-card">
+            <div><span class="field">From:</span> <span class="danger">CEO - STRICTLY CONFIDENTIAL</span> <span style="color: var(--text-muted);">&lt;ceo.urgent@executive-update.com&gt;</span></div>
+            <div><span class="field">Subject:</span> <span class="danger">IMMEDIATE ACTION REQUIRED: Transfer Authorization</span></div>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-glow);">
+                <span class="field">Body:</span><br>
+                "URGENT: Process the attached wire transfer instruction immediately. <span class="danger">This is critical and must remain STRICTLY CONFIDENTIAL.</span> Do not discuss with anyone. <span class="danger">Bypass standard procedure.</span> Thank you."
+            </div>
+        </div>
+
+        <div class="analysis-grid">
+            <div class="analysis-item"><div class="label">🚩 Domain Mismatch</div><div class="desc">Display name says "CEO", but the actual domain is <strong>executive-update.com</strong> (unknown, unverified).</div></div>
+            <div class="analysis-item"><div class="label">🧠 Psychological Triggers</div><div class="desc"><strong>Authority</strong> (CEO) + <strong>Urgency</strong> (IMMEDIATE) + <strong>Secrecy</strong> (Confidential). Overrides logic.</div></div>
+            <div class="analysis-item"><div class="label">⚠️ Bypass Request</div><div class="desc">Explicitly asks to <strong>"Bypass standard procedure"</strong> — this is the defining red flag of a BEC attack.</div></div>
+            <div class="analysis-item"><div class="label">📌 Final Verdict</div><div class="desc" style="color: var(--accent-red); font-weight: 700;">MALICIOUS — Whaling / BEC. Block domain, escalate to SOC, alert finance.</div></div>
+        </div>
+    </section>
+
+    <!-- ==================== INTERACTIVE SIMULATOR ==================== -->
+    <section>
+        <h2><i class="fas fa-gamepad"></i> Triage Simulator</h2>
+        <p style="color: var(--text-secondary);">Read the email above. What do you do?</p>
+        <div class="simulator-box">
+            <p style="font-weight: 600; margin-bottom: 1rem;">📧 <span style="color: var(--accent-cyan);">CEO Scam</span> — Choose your action:</p>
+            <div class="sim-actions">
+                <button class="sim-btn safe" data-choice="safe"><i class="fas fa-check"></i> Safe</button>
+                <button class="sim-btn sus" data-choice="sus"><i class="fas fa-question"></i> Suspicious</button>
+                <button class="sim-btn mal" data-choice="mal"><i class="fas fa-skull"></i> Malicious</button>
+            </div>
+            <div id="simFeedback" class="sim-feedback">
+                <i class="fas fa-info-circle"></i> <span id="feedbackText"></span>
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                <i class="fas fa-lightbulb" style="color: var(--accent-orange);"></i> Hint: Check the domain, urgency, and "bypass" request.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer>
+        
+        <p style="margin-top: 0.3rem; font-size: 0.8rem;">Built with AI </i> for the Human Firewall</p>
+    </footer>
+
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+    // ---------- Theme Toggle ----------
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    themeIcon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+    themeToggle.addEventListener('click', () => {
+        const theme = document.documentElement.getAttribute('data-theme');
+        const newTheme = theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+    });
+
+    // ---------- Triage Simulator ----------
+    const feedbackDiv = document.getElementById('simFeedback');
+    const feedbackText = document.getElementById('feedbackText');
+
+    document.querySelectorAll('.sim-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const choice = this.dataset.choice;
+            feedbackDiv.classList.add('show');
+            
+            // Correct answer is "mal" (Malicious)
+            if (choice === 'mal') {
+                feedbackDiv.className = 'sim-feedback show correct';
+                feedbackText.innerHTML = `
+                    <strong>✅ Correct!</strong> This email is 100% <strong>MALICIOUS</strong>.<br>
+                    • Domain mismatch (executive-update.com).<br>
+                    • Extreme urgency + secrecy.<br>
+                    • Explicit "Bypass standard procedure" request.<br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Action: Block Domain & Escalate to SOC.</span>
+                `;
+            } else if (choice === 'sus') {
+                feedbackDiv.className = 'sim-feedback show wrong';
+                feedbackText.innerHTML = `
+                    <strong>⚠️ Almost, but not quite.</strong><br>
+                    This isn't just "Suspicious" — it has <strong>4+ critical red flags</strong> (domain mismatch, bypass, secrecy, urgency).<br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Hint: Look at the sender's actual email address.</span>
+                `;
+            } else { // safe
+                feedbackDiv.className = 'sim-feedback show wrong';
+                feedbackText.innerHTML = `
+                    <strong>❌ Danger!</strong> This is <strong>NOT Safe</strong>.<br>
+                    A real CEO would never ask to bypass finance procedures via email.<br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Remember: Pause, Verify, Report.</span>
+                `;
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
